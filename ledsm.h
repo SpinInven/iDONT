@@ -1,6 +1,8 @@
 #ifndef LEDSM_H
 #define LEDSM_H
 
+#include "utils.h"
+
 #define STATE_LED_INIT_OFF               (0)
 #define STATE_LED_OFF                    (1)
 
@@ -15,10 +17,7 @@
 
 unsigned int __led_ms;
 
-int has_passed(unsigned int start, unsigned int duration)
-{
-  return millis() - start > duration;
-}
+
 void led_state_machine(unsigned char* state)
 {
   switch(*state)
