@@ -1,8 +1,10 @@
 #ifndef LEDSM_H
 #define LEDSM_H
+
 #define STATE_LED_INIT_OFF               (0)
 #define STATE_LED_OFF                    (1)
 
+#define STATE_LED_INIT_BLINKING          (2)
 #define STATE_LED_BLINKING_ON            (2)
 #define STATE_LED_BLINKING_ON_WAIT       (3)
 #define STATE_LED_BLINKING_OFF           (4)
