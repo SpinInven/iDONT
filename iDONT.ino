@@ -14,6 +14,7 @@ void setup() {
  
   mainState = STATE_MAIN_INIT;
   ledState= STATE_LED_BLINKING_ON;
+  led_sm_setup();
   pinMode(ESP8266_LED, OUTPUT);
 }
 
@@ -21,4 +22,5 @@ void loop()
 {
   //main_state_machine(&mainState, &wifiManager);
   led_state_machine(&ledState);
+  yield();
 }
