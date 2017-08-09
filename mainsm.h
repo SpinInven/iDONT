@@ -5,7 +5,7 @@
 #define STATE_MAIN_START_CAPTIVE_PORTAL  (1)
 #define STATE_MAIN_WAIT  (2)
 
-void main_state_machine(unsigned char* state, WiFiManager* wifiManager)
+void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiManager* wifiManager)
 {
   switch(*state)
   {

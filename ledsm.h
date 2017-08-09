@@ -10,25 +10,12 @@
 
 #define ESP8266_LED (5)
 
-#include "os_type.h"  // For os_timer_t
-os_timer_t myTimer;
+unsigned int __led_ms;
 
-bool tickOccured;
-
-// start of timerCallback
-void timerCallback(void *pArg) {
-
-      tickOccured = true;
-
-} // End of timerCallback
-
-void led_sm_setup()
+int has_passed(unsigned int start, unsigned int duration)
 {
-  tickOccured = false;
-  os_timer_setfn(&myTimer, timerCallback, NULL);
-  os_timer_arm(&myTimer, 300, true);
+  return millis() - start > duration;
 }
-
 void led_state_machine(unsigned char* state)
 {
   switch(*state)
@@ -39,27 +26,24 @@ void led_state_machine(unsigned char* state)
     case STATE_LED_OFF: break;
     case STATE_LED_BLINKING_ON:
       digitalWrite(ESP8266_LED, LOW);
-      
-      os_timer_arm(&myTimer, 100, true);
+      __led_ms = millis();
       *state = STATE_LED_BLINKING_ON_WAIT;
     break;
     case STATE_LED_BLINKING_ON_WAIT:
-      if (tickOccured)
+      if (has_passed(__led_ms, 100))
       {
         *state = STATE_LED_BLINKING_OFF;
-        tickOccured = false;
       }
     break;
     case STATE_LED_BLINKING_OFF:
       digitalWrite(ESP8266_LED, HIGH);
-      os_timer_arm(&myTimer, 400, true);
+      __led_ms = millis();
       *state = STATE_LED_BLINKING_OFF_WAIT;
     break;
     case STATE_LED_BLINKING_OFF_WAIT: 
-      if (tickOccured)
+      if (has_passed(__led_ms, 300))
       {
         *state = STATE_LED_BLINKING_ON;
-        tickOccured = false;
       }
     break;
 
