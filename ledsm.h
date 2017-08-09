@@ -1,3 +1,5 @@
+#ifndef LEDSM_H
+#define LEDSM_H
 #define STATE_LED_INIT_OFF               (0)
 #define STATE_LED_OFF                    (1)
 #define STATE_LED_BLINKING_ON            (2)
@@ -8,6 +10,7 @@
 
 #define ESP8266_LED (5)
 
+#include "os_type.h"  // For os_timer_t
 os_timer_t myTimer;
 
 bool tickOccured;
@@ -64,4 +67,5 @@ void led_state_machine(unsigned char* state)
   }
   
 }
+#endif
 

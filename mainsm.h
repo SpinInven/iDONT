@@ -1,3 +1,4 @@
+#include "ledsm.h"
 #include <WiFiManager.h>
 
 #define STATE_MAIN_INIT                  (0)
