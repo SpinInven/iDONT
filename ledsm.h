@@ -13,6 +13,9 @@
 #define STATE_LED_BLINKING_OFF_WAIT      (5)
 
 
+#define STATE_LED_INIT_ON                (6)
+#define STATE_LED_ON                     (7)
+
 #define ESP8266_LED (5)
 
 unsigned int __led_ms;
@@ -49,7 +52,11 @@ void led_state_machine(unsigned char* state)
         *state = STATE_LED_BLINKING_ON;
       }
     break;
-
+    case STATE_LED_INIT_ON:
+      digitalWrite(ESP8266_LED, LOW);
+      *state = STATE_LED_ON;
+    break;
+    case STATE_LED_ON: break;
     
   }
   
