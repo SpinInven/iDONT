@@ -19,7 +19,7 @@ void setup() {
 
 void loop() 
 {
-  //main_state_machine(&mainState, &ledState, &wifiManager);
+  main_state_machine(&mainState, &ledState, &wifiManager);
   led_state_machine(&ledState);
   yield();
 }
