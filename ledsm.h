@@ -2,6 +2,7 @@
 #define LEDSM_H
 #define STATE_LED_INIT_OFF               (0)
 #define STATE_LED_OFF                    (1)
+
 #define STATE_LED_BLINKING_ON            (2)
 #define STATE_LED_BLINKING_ON_WAIT       (3)
 #define STATE_LED_BLINKING_OFF           (4)
@@ -21,6 +22,7 @@ void led_state_machine(unsigned char* state)
   switch(*state)
   {
     case STATE_LED_INIT_OFF:
+      digitalWrite(ESP8266_LED, HIGH);
       *state = STATE_LED_OFF;
     break;
     case STATE_LED_OFF: break;
