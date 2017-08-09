@@ -5,6 +5,10 @@
 #define STATE_MAIN_START_CAPTIVE_PORTAL  (1)
 #define STATE_MAIN_WAIT  (2)
 
+
+const int Relay1=16;
+const int Relay2=17;
+
 void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiManager* wifiManager)
 {
   switch(*state)

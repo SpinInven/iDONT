@@ -1,3 +1,5 @@
+#include <ESP8266WebServer.h>
+
 #include "mainsm.h"
 #include "ledsm.h"
 #include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library
@@ -7,13 +9,14 @@
 
 
 WiFiManager wifiManager;
+WiFiServer server(80);
 unsigned char mainState;
 unsigned char ledState;
 void setup() {
   // put your setup code here, to run once:
  
   mainState = STATE_MAIN_INIT;
-  ledState= STATE_LED_BLINKING_ON;
+  ledState= STATE_LED_INIT_BLINKING;
   pinMode(ESP8266_LED, OUTPUT);
 }
 
