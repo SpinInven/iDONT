@@ -15,6 +15,8 @@ void setup() {
   mainState = STATE_MAIN_INIT;
   ledState= STATE_LED_INIT_OFF;
   pinMode(ESP8266_LED, OUTPUT);
+  
+  delay(4000);
 }
 
 void loop() 

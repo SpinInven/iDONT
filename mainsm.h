@@ -26,8 +26,9 @@ void config_wifi()
 // We can't do this local-statically because we need the object to survive longer than a single function call on the stack
 void instantiate_wifi_server(WiFiServer** ppServer)
 {
-  /*WifiServer pServer = new WifiServer(80);
-  *ppServer = pServer;*/
+  WiFiServer* pServer = new WiFiServer(80);
+  pServer->begin();
+  *ppServer = pServer;
 }
 
 void serve_wifi_client(WiFiServer * pServer)
@@ -54,6 +55,8 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiServe
       }
       else
       {
+        Serial.print("SSID:       ");
+        Serial.println(WiFi.SSID());
         WiFi.waitForConnectResult();
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
@@ -75,7 +78,7 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiServe
       *state = STATE_MAIN_SERVE_HTTP;
     break;
     case STATE_MAIN_SERVE_HTTP:
-    //serve_wifi_client(*ppServer);
+      serve_wifi_client(pServer);
     break;
   }
 
