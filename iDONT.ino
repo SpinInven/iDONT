@@ -5,12 +5,13 @@
 #include <WiFiManager.h>          //https://github.com/kentaylor/WiFiManager WiFi 
 #include <ESP8266WebServer.h>
 
-//WiFiServer server(80);
+WiFiServer* pWifiServer;
 unsigned char mainState;
 unsigned char ledState;
 void setup() {
   // put your setup code here, to run once:
- 
+  Serial.begin(115200);
+
   mainState = STATE_MAIN_INIT;
   ledState= STATE_LED_INIT_OFF;
   pinMode(ESP8266_LED, OUTPUT);
@@ -19,6 +20,6 @@ void setup() {
 void loop() 
 {
   led_state_machine(&ledState);
-  main_state_machine(&mainState, &ledState);
+  main_state_machine(&mainState, &ledState, &pWifiServer);
   yield();
 }
