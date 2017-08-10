@@ -26,12 +26,10 @@ void config_wifi()
 // We can't do this local-statically because we need the object to survive longer than a single function call on the stack
 void instantiate_wifi_server(WiFiServer** ppServer)
 {
-  WiFiServer* pServer = new WiFiServer(80);
-  pServer->begin();
-  *ppServer = pServer;
+  (*ppServer) = new WiFiServer(80);
 }
 
-void serve_wifi_client(WiFiServer * pServer)
+void serve_wifi_client(WiFiServer* pServer)
 {
   WiFiClient client = pServer->available();
   if (client) {
@@ -39,11 +37,9 @@ void serve_wifi_client(WiFiServer * pServer)
   }
 }
 
-
+#define pServer (*ppServer)
 void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiServer** ppServer)
-{
-  WiFiServer* pServer = *ppServer;
-  
+{  
   switch(*state)
   {
     case STATE_MAIN_INIT:
@@ -74,11 +70,11 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiServe
     break;
     case STATE_MAIN_INIT_HTTP:
       instantiate_wifi_server(ppServer);
-      //pServer->begin();
+      (*ppServer)->begin();
       *state = STATE_MAIN_SERVE_HTTP;
     break;
     case STATE_MAIN_SERVE_HTTP:
-      serve_wifi_client(pServer);
+      serve_wifi_client((*ppServer));
     break;
   }
 
