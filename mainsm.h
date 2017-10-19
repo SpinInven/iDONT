@@ -130,10 +130,18 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
         WiFi.waitForConnectResult();
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
-        if (WiFi.status()!=WL_CONNECTED){Serial.println("Not connected.");}
-        *ledState = STATE_LED_INIT_ON;
-        *led2State = STATE_LED_INIT_ON;
-        *state = STATE_MAIN_INIT_HTTP;
+        if (WiFi.status()!=WL_CONNECTED)
+        {
+          Serial.println("Not connected.");
+          *ledState = STATE_LED_INIT_BLINKING;
+          *led2State = STATE_LED_INIT_BLINKING;
+          *state = STATE_MAIN_START_CAPTIVE_PORTAL;
+        }
+        {
+          *ledState = STATE_LED_INIT_ON;
+          *led2State = STATE_LED_INIT_ON;
+          *state = STATE_MAIN_INIT_HTTP;
+        }
       }
     break;
     case STATE_MAIN_START_CAPTIVE_PORTAL:
