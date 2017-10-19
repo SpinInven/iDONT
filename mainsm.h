@@ -149,13 +149,13 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
     break;
     case STATE_MAIN_INIT_HTTP:
       Serial.print("Starting HTTP Server\n");
+      *ledState = STATE_LED_INIT_OFF;
+      *led2State = STATE_LED_INIT_ON;
       instantiate_wifi_server(ppServer);
       (*ppServer)->begin();
       *state = STATE_MAIN_SERVE_HTTP;
     break;
     case STATE_MAIN_SERVE_HTTP:
-      *ledState = STATE_LED_INIT_OFF;
-      *led2State = STATE_LED_INIT_ON;
       serve_wifi_client((*ppServer));
     break;
   }
