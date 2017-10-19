@@ -113,7 +113,7 @@ void serve_wifi_client(WiFiServer* pServer)
 }
 
 #define pServer (*ppServer)
-void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiServer** ppServer)
+void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned char* led2State, WiFiServer** ppServer)
 {  
   switch(*state)
   {
@@ -122,6 +122,7 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiServe
       if (WiFi.SSID()=="")
       {
         *ledState = STATE_LED_INIT_OFF;
+        *led2State = STATE_LED_INIT_BLINKING;
         *state = STATE_MAIN_START_CAPTIVE_PORTAL;
       }
       else

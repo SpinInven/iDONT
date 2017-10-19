@@ -9,7 +9,8 @@
 
 WiFiServer* pWifiServer;
 unsigned char mainState;
-unsigned char ledState;
+unsigned char led1State;
+unsigned char led2State;
 
 void setup() {  
   // put your setup code here, to run once:
@@ -18,7 +19,8 @@ void setup() {
   Serial.begin(115200);
 
   mainState = STATE_MAIN_INIT;
-  ledState= STATE_LED_INIT_OFF;
+  led1State= STATE_LED_INIT_BLINKING;
+  led2State= STATE_LED_INIT_BLINKING;
   pinMode(MAIN_LED, OUTPUT);
   
   enable_bell();
@@ -34,7 +36,8 @@ void setup() {
 
 void loop() 
 {
-  led_state_machine(&ledState);
-  main_state_machine(&mainState, &ledState, &pWifiServer);
+  led_state_machine(&led1State, MAIN_LED);
+  led_state_machine(&led2State, SECOND_LED);
+  main_state_machine(&mainState, &led1State, &led2State, &pWifiServer);
   yield();
 }
