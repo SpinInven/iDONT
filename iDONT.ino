@@ -21,7 +21,6 @@ void setup() {
   mainState = STATE_MAIN_INIT;
   led1State= STATE_LED_INIT_BLINKING;
   led2State= STATE_LED_INIT_BLINKING;
-  pinMode(MAIN_LED, OUTPUT);
   
   enable_bell();
   delay(1000);
