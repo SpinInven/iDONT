@@ -1,11 +1,16 @@
-#include "mainsm.h"
-#include "ledsm.h"
-#include "nvram.h"
+
 #include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
 #include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
 #include <WiFiManager.h>          //https://github.com/kentaylor/WiFiManager WiFi 
+#include <ESP8266HTTPClient.h>
+
+#include "mainsm.h"
+#include "ledsm.h"
+#include "nvram.h"
 
 WiFiServer* pWifiServer;
+HTTPClient httpClient;
+
 unsigned char btnState;
 unsigned char mainState;
 unsigned char led1State;
@@ -45,5 +50,14 @@ void loop()
   led_state_machine(&led2State, SECOND_LED);
   main_state_machine(&mainState, &led1State, &led2State, &doorbellEnabled, &doorbellDepressed, &pWifiServer);
   btn_state_machine(&btnState, &doorbellDepressed);
+  if (btnState == STATE_BTN_EVENT)
+  {
+    httpClient.begin("http://geonetric.joelwhitehouse.com/idont/ring.php");
+    if ( httpClient.GET() == HTTP_CODE_OK)
+    {
+      String payload = httpClient.getString();
+      Serial.println(payload);
+    }
+  }
   yield();
 }
