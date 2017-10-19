@@ -8,10 +8,12 @@
 
 
 WiFiServer* pWifiServer;
+unsigned char btnState;
 unsigned char mainState;
 unsigned char led1State;
 unsigned char led2State;
 unsigned char doorbellEnabled;
+unsigned char doorbellDepressed;
 
 
 void setup() {  
@@ -21,9 +23,11 @@ void setup() {
   Serial.begin(115200);
 
   mainState = STATE_MAIN_INIT;
-  led1State= STATE_LED_INIT_BLINKING;
-  led2State= STATE_LED_INIT_BLINKING;
+  btnState  = STATE_BTN_INIT;
+  led1State = STATE_LED_INIT_BLINKING;
+  led2State = STATE_LED_INIT_BLINKING;
   doorbellEnabled = STATE_ENABLED;
+  doorbellDepressed = false;
   
   enable_bell();
   delay(200);
@@ -41,6 +45,7 @@ void loop()
   if (doorbellEnabled) enable_bell(); else disable_bell();
   led_state_machine(&led1State, MAIN_LED);
   led_state_machine(&led2State, SECOND_LED);
-  main_state_machine(&mainState, &led1State, &led2State, &doorbellEnabled, &pWifiServer);
+  main_state_machine(&mainState, &led1State, &led2State, &doorbellEnabled, &doorbellDepressed, &pWifiServer);
+  btn_state_machine(&btnState, &doorbellDepressed);
   yield();
 }
