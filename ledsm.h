@@ -35,6 +35,9 @@
 #define MAIN_LED  NODE_MCU_D6
 #define SECOND_LED  NODE_MCU_D2
 
+#define SW_RING_MUTED     NODE_MCU_D7
+#define SW_RING_NORMAL    NODE_MCU_D5
+
 void initialize_node_mcu_io()
 {
   pinMode(NODE_MCU_D6, OUTPUT);  // LED 1
@@ -42,7 +45,7 @@ void initialize_node_mcu_io()
   pinMode(NODE_MCU_D0, OUTPUT);  // Relay 1
   pinMode(NODE_MCU_D1, OUTPUT);  // Relay 2
   pinMode(NODE_MCU_D5, INPUT);   // Doorbell Sw
-  pinMode(NODE_MCU_D7, INPUT);   // Silent Doorbell Sw
+  pinMode(NODE_MCU_D7, INPUT);   // Muted Doorbell Sw
 }
 void initialize_hal()
 {
