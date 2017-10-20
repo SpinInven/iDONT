@@ -35,7 +35,7 @@ void serve_wifi_client(WiFiServer* pServer)
   WiFiClient client = pServer->available();
   char linebuf[80];
   unsigned int charcount=0;
-  
+
   if (client) {
   Serial.println("New client");
   memset(linebuf,0,sizeof(linebuf));
@@ -121,8 +121,8 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
     
       if (WiFi.SSID()=="")
       {
-        *ledState = STATE_LED_INIT_BLINKING;
-        *led2State = STATE_LED_INIT_BLINKING;
+        *ledState = STATE_LED_INIT_ON;
+        *led2State = STATE_LED_INIT_ON;
         *state = STATE_MAIN_START_CAPTIVE_PORTAL;
       }
       else
@@ -141,21 +141,18 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
     case STATE_MAIN_START_CAPTIVE_PORTAL:
       Serial.print("Starting Captive Portal\n");
       config_wifi();
-      Serial.print("Finishing Captive Portal\n");
       *state = STATE_MAIN_RESET;
     break;
     case STATE_MAIN_RESET:
       board_reset();
     break;
     case STATE_MAIN_INIT_HTTP:
-      Serial.print("Starting HTTP Server\n");
       instantiate_wifi_server(ppServer);
       (*ppServer)->begin();
       *state = STATE_MAIN_SERVE_HTTP;
     break;
     case STATE_MAIN_SERVE_HTTP:
-      *ledState = STATE_LED_INIT_OFF;
-      *led2State = STATE_LED_INIT_ON;
+      Serial.print("Starting HTTP Server\n");
       serve_wifi_client((*ppServer));
     break;
   }
