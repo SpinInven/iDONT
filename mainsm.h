@@ -121,8 +121,8 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
     
       if (WiFi.SSID()=="")
       {
-        *ledState = STATE_LED_INIT_ON;
-        *led2State = STATE_LED_INIT_ON;
+        *ledState = STATE_LED_INIT_OFF;
+        *led2State = STATE_LED_INIT_BLINKING;
         *state = STATE_MAIN_START_CAPTIVE_PORTAL;
       }
       else
@@ -133,13 +133,11 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
         if (WiFi.status()!=WL_CONNECTED){Serial.println("Not connected.");}
-        *ledState = STATE_LED_INIT_ON;
-        *led2State = STATE_LED_INIT_ON;
+        *ledState = STATE_LED_INIT_BLINKING;
         *state = STATE_MAIN_INIT_HTTP;
       }
     break;
     case STATE_MAIN_START_CAPTIVE_PORTAL:
-      Serial.print("Starting Captive Portal\n");
       config_wifi();
       *state = STATE_MAIN_RESET;
     break;
@@ -152,7 +150,6 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
       *state = STATE_MAIN_SERVE_HTTP;
     break;
     case STATE_MAIN_SERVE_HTTP:
-      Serial.print("Starting HTTP Server\n");
       serve_wifi_client((*ppServer));
     break;
   }
