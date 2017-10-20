@@ -111,7 +111,7 @@ void serve_wifi_client(WiFiServer* pServer, unsigned char* doorbellEnabled)
 }
 
 #define pServer (*ppServer)
-void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned char* led2State, unsigned char* doorbellEnabled, unsigned char* doorbellDepressed, WiFiServer** ppServer)
+void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned char* led2State, unsigned char* doorbellEnabled, WiFiServer** ppServer)
 {  
   switch(*state)
   {
@@ -154,70 +154,11 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
       *state = STATE_MAIN_SERVE_HTTP;
     break;
     case STATE_MAIN_SERVE_HTTP:
-      // Allow the web page to update the doorbellEnabled state
       serve_wifi_client((*ppServer), doorbellEnabled);
-      // Turn green LED on
-      *led2State = STATE_LED_INIT_ON;
-
-      // Cause red LED to track the inverse of the doorbell state
       if (*doorbellEnabled) *ledState = STATE_LED_INIT_OFF; else *ledState = STATE_LED_INIT_ON;
-
-      if (*doorbellEnabled)
-      {
-        *doorbellDepressed =  ! digitalRead(SW_RING_MUTED);  //(doesn't work, hardware issue?)
-      }
-      else
-      {
-        *doorbellDepressed = ! digitalRead(SW_RING_MUTED);
-      }
-      
-      // Cause green LED to track the inverse of the doorbell
-      if (*doorbellDepressed) *led2State = STATE_LED_INIT_OFF;
       
     break;
   }
+
 }
-
-#define STATE_BTN_INIT                   (0)
-#define STATE_BTN_HELD                   (1)
-#define STATE_BTN_READY                  (2)
-#define STATE_BTN_EVENT                  (3)
-#define STATE_BTN_COOLDOWN               (4)
-
-unsigned int __btn_ms;
-
-void btn_state_machine(unsigned char* state, unsigned char* doorbellDepressed)
-{
-  switch(*state)
-  {
-    case STATE_BTN_INIT:
-      *state=STATE_BTN_READY;
-    break;
-    case STATE_BTN_READY:
-      // Wait for button down
-      if (*doorbellDepressed) *state = STATE_BTN_EVENT;
-    break;
-    case STATE_BTN_EVENT:
-      // Do stuff
-      Serial.println("Button Press");
-      *state = STATE_BTN_HELD;
-    break;
-    case STATE_BTN_HELD:
-      // Wait for button up
-      if (!(*doorbellDepressed)) 
-      {
-        __btn_ms = millis();
-        *state = STATE_BTN_COOLDOWN;
-      }
-    break;
-    case STATE_BTN_COOLDOWN:
-      // Wait a while as a debounce
-      if (has_passed(__btn_ms, 1600))
-      {
-        *state = STATE_BTN_READY;
-      }
-    break;
-  }
-}
-
 
