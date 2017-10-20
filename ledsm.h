@@ -63,17 +63,17 @@ void disable_bell()
 unsigned int __led_ms;
 
 
-void led_state_machine(unsigned char* state, unsigned char LED_PIN)
+void led_state_machine(unsigned char* state)
 {
   switch(*state)
   {
     case STATE_LED_INIT_OFF:
-      digitalWrite(LED_PIN, HIGH);
+      digitalWrite(MAIN_LED, HIGH);
       *state = STATE_LED_OFF;
     break;
     case STATE_LED_OFF: break;
     case STATE_LED_BLINKING_ON:
-      digitalWrite(LED_PIN, LOW);
+      digitalWrite(MAIN_LED, LOW);
       __led_ms = millis();
       *state = STATE_LED_BLINKING_ON_WAIT;
     break;
@@ -84,7 +84,7 @@ void led_state_machine(unsigned char* state, unsigned char LED_PIN)
       }
     break;
     case STATE_LED_BLINKING_OFF:
-      digitalWrite(LED_PIN, HIGH);
+      digitalWrite(MAIN_LED, HIGH);
       __led_ms = millis();
       *state = STATE_LED_BLINKING_OFF_WAIT;
     break;
@@ -95,7 +95,7 @@ void led_state_machine(unsigned char* state, unsigned char LED_PIN)
       }
     break;
     case STATE_LED_INIT_ON:
-      digitalWrite(LED_PIN, LOW);
+      digitalWrite(MAIN_LED, LOW);
       *state = STATE_LED_ON;
     break;
     case STATE_LED_ON: break;
