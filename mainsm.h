@@ -152,6 +152,7 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
       *state = STATE_MAIN_RESET;
     break;
     case STATE_MAIN_RESET:
+      ESP.restart();
       board_reset();
     break;
     case STATE_MAIN_INIT_HTTP:
