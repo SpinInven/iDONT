@@ -1,8 +1,9 @@
 #include "ledsm.h"
 #include "utils.h"
-#include <WiFiManager.h>
+#include "WiFiManager.h"
 #include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library
 #include <ESP8266WebServer.h>
+
 
 #define STATE_MAIN_INIT                  (0)
 #define STATE_MAIN_START_CAPTIVE_PORTAL  (1)
@@ -10,9 +11,15 @@
 #define STATE_MAIN_SERVE_HTTP            (3)
 #define STATE_MAIN_RESET                 (50)
 
+#define STATE_DISABLED                   (0)
+#define STATE_ENABLED                    (1)
 
-const int Relay1=16;
-const int Relay2=17;
+
+#define STATE_BTN_INIT                   (0)
+#define STATE_BTN_HELD                   (1)
+#define STATE_BTN_READY                  (2)
+#define STATE_BTN_EVENT                  (3)
+#define STATE_BTN_COOLDOWN               (4)
 
 void config_wifi()
 {
@@ -29,19 +36,19 @@ void instantiate_wifi_server(WiFiServer** ppServer)
   (*ppServer) = new WiFiServer(80);
 }
 
-void serve_wifi_client(WiFiServer* pServer)
+void serve_wifi_client(WiFiServer* pServer, unsigned char* doorbellEnabled, unsigned char* changed)
 {
   WiFiClient client = pServer->available();
   char linebuf[80];
-  int charcount=0;
-
+  unsigned int charcount=0;
+  
   if (client) {
   Serial.println("New client");
   memset(linebuf,0,sizeof(linebuf));
   charcount=0;
   // an http request ends with a blank line
   boolean currentLineIsBlank=true;
-  boolean DoorbellOn=true;
+  boolean DoorbellOn=*doorbellEnabled;
   while (client.connected()) {
     if (client.available()) {
       char c = client.read();
@@ -74,12 +81,10 @@ void serve_wifi_client(WiFiServer* pServer)
         if (strstr(linebuf,"GET /on1") > 0){
           Serial.println("Doorbell ON");
           DoorbellOn= true;
-          ////digitalWrite(Relay1,HIGH);
         }
         else if (strstr(linebuf,"GET /off1") > 0){
           Serial.println("Doorbell OFF");
           DoorbellOn= false;
-          ////digitalWrite(Relay1, LOW);
         }
 //        else if (strstr(linebuf,"GET /on2") > 0){
 //          Serial.println("LED 2 ON");
@@ -107,20 +112,23 @@ void serve_wifi_client(WiFiServer* pServer)
   //close the connection
   client.stop();
   Serial.println("client disconnected");
-  
+  if (*doorbellEnabled != DoorbellOn) *changed = true;
+  *doorbellEnabled = DoorbellOn;
   }
 }
 
 #define pServer (*ppServer)
-void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiServer** ppServer)
+void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned char* led2State, unsigned char* doorbellEnabled, unsigned char* doorbellDepressed, unsigned char* btnState, WiFiServer** ppServer)
 {  
+  unsigned char changed = false;
   switch(*state)
   {
     case STATE_MAIN_INIT:
     
       if (WiFi.SSID()=="")
       {
-        *ledState = STATE_LED_INIT_OFF;
+        *ledState = STATE_LED_INIT_BLINKING;
+        *led2State = STATE_LED_INIT_BLINKING;
         *state = STATE_MAIN_START_CAPTIVE_PORTAL;
       }
       else
@@ -130,27 +138,102 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, WiFiServe
         WiFi.waitForConnectResult();
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
-        if (WiFi.status()!=WL_CONNECTED){Serial.println("Not connected.");}
-        *ledState = STATE_LED_INIT_BLINKING;
-        *state = STATE_MAIN_INIT_HTTP;
+        if (WiFi.status()!=WL_CONNECTED)
+        {
+          Serial.println("Not connected.");
+          *ledState = STATE_LED_INIT_BLINKING;
+          *led2State = STATE_LED_INIT_BLINKING;
+          *state = STATE_MAIN_START_CAPTIVE_PORTAL;
+        }
+        else
+        {
+          *ledState = STATE_LED_INIT_ON;
+          *led2State = STATE_LED_INIT_ON;
+          *state = STATE_MAIN_INIT_HTTP;
+        }
       }
     break;
     case STATE_MAIN_START_CAPTIVE_PORTAL:
+      Serial.print("Starting Captive Portal\n");
       config_wifi();
+      Serial.print("Finishing Captive Portal\n");
       *state = STATE_MAIN_RESET;
     break;
     case STATE_MAIN_RESET:
+      ESP.restart();
       board_reset();
     break;
     case STATE_MAIN_INIT_HTTP:
+      Serial.print("Starting HTTP Server\n");
+      *ledState = STATE_LED_INIT_OFF;
+      *led2State = STATE_LED_INIT_ON;
       instantiate_wifi_server(ppServer);
       (*ppServer)->begin();
       *state = STATE_MAIN_SERVE_HTTP;
     break;
     case STATE_MAIN_SERVE_HTTP:
-      serve_wifi_client((*ppServer));
+      // Allow the web page to update the doorbellEnabled state
+      serve_wifi_client((*ppServer), doorbellEnabled, &changed);
+
+      if(changed) *btnState = STATE_BTN_COOLDOWN;
+      
+      // Turn green LED on
+      *led2State = STATE_LED_INIT_ON;
+
+      // Cause red LED to track the inverse of the doorbell state
+      if (*doorbellEnabled) *ledState = STATE_LED_INIT_OFF; else *ledState = STATE_LED_INIT_ON;
+
+      if (*doorbellEnabled)
+      {
+        *doorbellDepressed =  ! digitalRead(SW_RING_NORMAL);  //(doesn't work, hardware issue?)
+      }
+      else
+      {
+        *doorbellDepressed = ! digitalRead(SW_RING_MUTED);
+      }
+      
+      // Cause green LED to track the inverse of the doorbell
+      if (*doorbellDepressed) *led2State = STATE_LED_INIT_OFF;
+      
     break;
   }
-
 }
+
+
+unsigned int __btn_ms;
+
+void btn_state_machine(unsigned char* state, unsigned char* doorbellDepressed)
+{
+  switch(*state)
+  {
+    case STATE_BTN_INIT:
+      *state=STATE_BTN_READY;
+    break;
+    case STATE_BTN_READY:
+      // Wait for button down
+      if (*doorbellDepressed) *state = STATE_BTN_EVENT;
+    break;
+    case STATE_BTN_EVENT:
+      // Do stuff
+      Serial.println("Button Press");
+      *state = STATE_BTN_HELD;
+    break;
+    case STATE_BTN_HELD:
+      // Wait for button up
+      if (!(*doorbellDepressed)) 
+      {
+        __btn_ms = millis();
+        *state = STATE_BTN_COOLDOWN;
+      }
+    break;
+    case STATE_BTN_COOLDOWN:
+      // Wait a while as a debounce
+      if (has_passed(__btn_ms, 1600))
+      {
+        *state = STATE_BTN_READY;
+      }
+    break;
+  }
+}
+
 
