@@ -4,7 +4,6 @@
 #include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library
 #include <ESP8266WebServer.h>
 
-
 #define STATE_MAIN_INIT                  (0)
 #define STATE_MAIN_START_CAPTIVE_PORTAL  (1)
 #define STATE_MAIN_INIT_HTTP             (2)
@@ -34,7 +33,7 @@ void serve_wifi_client(WiFiServer* pServer)
 {
   WiFiClient client = pServer->available();
   char linebuf[80];
-  unsigned int charcount=0;
+  int charcount=0;
 
   if (client) {
   Serial.println("New client");

@@ -16,49 +16,7 @@
 #define STATE_LED_INIT_ON                (6)
 #define STATE_LED_ON                     (7)
 
-
-
-#define NODE_MCU_D0 (16)
-#define NODE_MCU_D1 (5)
-#define NODE_MCU_D2 (4)
-#define NODE_MCU_D3 (0)
-#define NODE_MCU_D4 (2)
-#define NODE_MCU_D5 (14)
-#define NODE_MCU_D6 (12)
-#define NODE_MCU_D7 (13)
-#define NODE_MCU_D8 (15)
-#define NODE_MCU_D9 (3)
-#define NODE_MCU_D10 (1)
-
 #define ESP8266_LED (5)
-
-#define MAIN_LED  NODE_MCU_D6
-#define SECOND_LED  NODE_MCU_D2
-
-void initialize_node_mcu_io()
-{
-  pinMode(NODE_MCU_D6, OUTPUT);  // LED 1
-  pinMode(NODE_MCU_D2, OUTPUT);  // LED 2
-  pinMode(NODE_MCU_D0, OUTPUT);  // Relay 1
-  pinMode(NODE_MCU_D1, OUTPUT);  // Relay 2
-  pinMode(NODE_MCU_D5, INPUT);   // Doorbell Sw
-  pinMode(NODE_MCU_D7, INPUT);   // Silent Doorbell Sw
-}
-void initialize_hal()
-{
-   initialize_node_mcu_io();
-}
-
-void enable_bell()
-{
-      digitalWrite(NODE_MCU_D0, LOW);
-      digitalWrite(NODE_MCU_D1, LOW);
-}
-void disable_bell()
-{
-      digitalWrite(NODE_MCU_D0, HIGH);
-      digitalWrite(NODE_MCU_D1, HIGH);
-}
 
 unsigned int __led_ms;
 
@@ -68,12 +26,12 @@ void led_state_machine(unsigned char* state)
   switch(*state)
   {
     case STATE_LED_INIT_OFF:
-      digitalWrite(MAIN_LED, HIGH);
+      digitalWrite(ESP8266_LED, HIGH);
       *state = STATE_LED_OFF;
     break;
     case STATE_LED_OFF: break;
     case STATE_LED_BLINKING_ON:
-      digitalWrite(MAIN_LED, LOW);
+      digitalWrite(ESP8266_LED, LOW);
       __led_ms = millis();
       *state = STATE_LED_BLINKING_ON_WAIT;
     break;
@@ -84,7 +42,7 @@ void led_state_machine(unsigned char* state)
       }
     break;
     case STATE_LED_BLINKING_OFF:
-      digitalWrite(MAIN_LED, HIGH);
+      digitalWrite(ESP8266_LED, HIGH);
       __led_ms = millis();
       *state = STATE_LED_BLINKING_OFF_WAIT;
     break;
@@ -95,7 +53,7 @@ void led_state_machine(unsigned char* state)
       }
     break;
     case STATE_LED_INIT_ON:
-      digitalWrite(MAIN_LED, LOW);
+      digitalWrite(ESP8266_LED, LOW);
       *state = STATE_LED_ON;
     break;
     case STATE_LED_ON: break;
