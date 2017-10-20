@@ -1,6 +1,7 @@
 
 #include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
 #include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
+
 #include "WiFiManager.h"          //https://github.com/kentaylor/WiFiManager WiFi 
 #include <ESP8266HTTPClient.h>
 
@@ -48,9 +49,11 @@ void loop()
   if (doorbellEnabled) enable_bell(); else disable_bell();
   led_state_machine(&led1State, MAIN_LED);
   led_state_machine(&led2State, SECOND_LED);
+
   main_state_machine(&mainState, &led1State, &led2State, &doorbellEnabled, &doorbellDepressed, &btnState, &pWifiServer);
   btn_state_machine(&btnState, &doorbellDepressed);
   if (0 && btnState == STATE_BTN_EVENT)
+
   {
     httpClient.begin("http://geonetric.joelwhitehouse.com/idont/ring.php");
     if ( httpClient.GET() == HTTP_CODE_OK)
