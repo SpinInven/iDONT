@@ -155,7 +155,6 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
     break;
     case STATE_MAIN_SERVE_HTTP:
       serve_wifi_client((*ppServer), doorbellEnabled);
-      if (*doorbellEnabled) *ledState = STATE_LED_INIT_ON; else *ledState = STATE_LED_INIT_OFF;
       
     break;
   }
