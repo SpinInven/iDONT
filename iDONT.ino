@@ -11,8 +11,6 @@ WiFiServer* pWifiServer;
 unsigned char mainState;
 unsigned char led1State;
 unsigned char led2State;
-unsigned char doorbellEnabled;
-
 
 void setup() {  
   // put your setup code here, to run once:
@@ -23,24 +21,22 @@ void setup() {
   mainState = STATE_MAIN_INIT;
   led1State= STATE_LED_INIT_BLINKING;
   led2State= STATE_LED_INIT_BLINKING;
-  doorbellEnabled = STATE_ENABLED;
   
   enable_bell();
-  delay(200);
+  delay(1000);
   disable_bell();
-  delay(100);
+  delay(1000);
   enable_bell();
-  delay(200);
+  delay(1000);
   disable_bell();
-  delay(2000);
+  delay(1000);
   nvram_dump();
 }
 
 void loop() 
 {
-  if (doorbellEnabled) enable_bell(); else disable_bell();
   led_state_machine(&led1State, MAIN_LED);
   led_state_machine(&led2State, SECOND_LED);
-  main_state_machine(&mainState, &led1State, &led2State, &doorbellEnabled, &pWifiServer);
+  main_state_machine(&mainState, &led1State, &led2State, &pWifiServer);
   yield();
 }

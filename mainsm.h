@@ -11,9 +11,9 @@
 #define STATE_MAIN_SERVE_HTTP            (3)
 #define STATE_MAIN_RESET                 (50)
 
-#define STATE_DISABLED                   (0)
-#define STATE_ENABLED                    (1)
 
+const int Relay1=16;
+const int Relay2=17;
 
 void config_wifi()
 {
@@ -30,7 +30,7 @@ void instantiate_wifi_server(WiFiServer** ppServer)
   (*ppServer) = new WiFiServer(80);
 }
 
-void serve_wifi_client(WiFiServer* pServer, unsigned char* doorbellEnabled)
+void serve_wifi_client(WiFiServer* pServer)
 {
   WiFiClient client = pServer->available();
   char linebuf[80];
@@ -42,7 +42,7 @@ void serve_wifi_client(WiFiServer* pServer, unsigned char* doorbellEnabled)
   charcount=0;
   // an http request ends with a blank line
   boolean currentLineIsBlank=true;
-  boolean DoorbellOn=*doorbellEnabled;
+  boolean DoorbellOn=true;
   while (client.connected()) {
     if (client.available()) {
       char c = client.read();
@@ -75,10 +75,12 @@ void serve_wifi_client(WiFiServer* pServer, unsigned char* doorbellEnabled)
         if (strstr(linebuf,"GET /on1") > 0){
           Serial.println("Doorbell ON");
           DoorbellOn= true;
+          ////digitalWrite(Relay1,HIGH);
         }
         else if (strstr(linebuf,"GET /off1") > 0){
           Serial.println("Doorbell OFF");
           DoorbellOn= false;
+          ////digitalWrite(Relay1, LOW);
         }
 //        else if (strstr(linebuf,"GET /on2") > 0){
 //          Serial.println("LED 2 ON");
@@ -106,12 +108,12 @@ void serve_wifi_client(WiFiServer* pServer, unsigned char* doorbellEnabled)
   //close the connection
   client.stop();
   Serial.println("client disconnected");
-  *doorbellEnabled = DoorbellOn;
+  
   }
 }
 
 #define pServer (*ppServer)
-void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned char* led2State, unsigned char* doorbellEnabled, WiFiServer** ppServer)
+void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned char* led2State, WiFiServer** ppServer)
 {  
   switch(*state)
   {
@@ -154,8 +156,7 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
       *state = STATE_MAIN_SERVE_HTTP;
     break;
     case STATE_MAIN_SERVE_HTTP:
-      serve_wifi_client((*ppServer), doorbellEnabled);
-      
+      serve_wifi_client((*ppServer));
     break;
   }
 
