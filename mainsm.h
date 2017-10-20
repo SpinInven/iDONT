@@ -177,7 +177,7 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
       }
       else
       {
-        *doorbellDepressed = ! digitalRead(SW_RING_MUTED);
+        *doorbellDepressed = ! digitalRead(SW_RING_NORMAL);
       }
       
       // Cause green LED to track the inverse of the doorbell
