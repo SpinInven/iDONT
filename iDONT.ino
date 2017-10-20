@@ -50,7 +50,7 @@ void loop()
   led_state_machine(&led2State, SECOND_LED);
   main_state_machine(&mainState, &led1State, &led2State, &doorbellEnabled, &doorbellDepressed, &pWifiServer);
   btn_state_machine(&btnState, &doorbellDepressed);
-  if (btnState == STATE_BTN_EVENT)
+  if (0 && btnState == STATE_BTN_EVENT)
   {
     httpClient.begin("http://geonetric.joelwhitehouse.com/idont/ring.php");
     if ( httpClient.GET() == HTTP_CODE_OK)
