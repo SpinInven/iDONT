@@ -48,7 +48,7 @@ void loop()
   if (doorbellEnabled) enable_bell(); else disable_bell();
   led_state_machine(&led1State, MAIN_LED);
   led_state_machine(&led2State, SECOND_LED);
-  main_state_machine(&mainState, &led1State, &led2State, &doorbellEnabled, &doorbellDepressed, &pWifiServer);
+  main_state_machine(&mainState, &led1State, &led2State, &doorbellEnabled, &doorbellDepressed, &btnState, &pWifiServer);
   btn_state_machine(&btnState, &doorbellDepressed);
   if (0 && btnState == STATE_BTN_EVENT)
   {

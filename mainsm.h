@@ -15,6 +15,12 @@
 #define STATE_ENABLED                    (1)
 
 
+#define STATE_BTN_INIT                   (0)
+#define STATE_BTN_HELD                   (1)
+#define STATE_BTN_READY                  (2)
+#define STATE_BTN_EVENT                  (3)
+#define STATE_BTN_COOLDOWN               (4)
+
 void config_wifi()
 {
   WiFiManager wifiManager;
@@ -30,7 +36,7 @@ void instantiate_wifi_server(WiFiServer** ppServer)
   (*ppServer) = new WiFiServer(80);
 }
 
-void serve_wifi_client(WiFiServer* pServer, unsigned char* doorbellEnabled)
+void serve_wifi_client(WiFiServer* pServer, unsigned char* doorbellEnabled, unsigned char* changed)
 {
   WiFiClient client = pServer->available();
   char linebuf[80];
@@ -106,13 +112,15 @@ void serve_wifi_client(WiFiServer* pServer, unsigned char* doorbellEnabled)
   //close the connection
   client.stop();
   Serial.println("client disconnected");
+  if (*doorbellEnabled != DoorbellOn) *changed = true;
   *doorbellEnabled = DoorbellOn;
   }
 }
 
 #define pServer (*ppServer)
-void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned char* led2State, unsigned char* doorbellEnabled, unsigned char* doorbellDepressed, WiFiServer** ppServer)
+void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned char* led2State, unsigned char* doorbellEnabled, unsigned char* doorbellDepressed, unsigned char* btnState, WiFiServer** ppServer)
 {  
+  unsigned char changed = false;
   switch(*state)
   {
     case STATE_MAIN_INIT:
@@ -165,7 +173,10 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
     break;
     case STATE_MAIN_SERVE_HTTP:
       // Allow the web page to update the doorbellEnabled state
-      serve_wifi_client((*ppServer), doorbellEnabled);
+      serve_wifi_client((*ppServer), doorbellEnabled, &changed);
+
+      if(changed) *btnState = STATE_BTN_COOLDOWN;
+      
       // Turn green LED on
       *led2State = STATE_LED_INIT_ON;
 
@@ -188,11 +199,6 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
   }
 }
 
-#define STATE_BTN_INIT                   (0)
-#define STATE_BTN_HELD                   (1)
-#define STATE_BTN_READY                  (2)
-#define STATE_BTN_EVENT                  (3)
-#define STATE_BTN_COOLDOWN               (4)
 
 unsigned int __btn_ms;
 
