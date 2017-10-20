@@ -137,7 +137,6 @@ void main_state_machine(unsigned char* state, unsigned char* ledState, unsigned 
           *led2State = STATE_LED_INIT_BLINKING;
           *state = STATE_MAIN_START_CAPTIVE_PORTAL;
         }
-        else
         {
           *ledState = STATE_LED_INIT_ON;
           *led2State = STATE_LED_INIT_ON;
