@@ -52,7 +52,7 @@ void loop()
   btn_state_machine(&btnState, &doorbellDepressed);
   if (0 && btnState == STATE_BTN_EVENT)
   {
-    httpClient.begin("http://geonetric.joelwhitehouse.com/idont/ring.php");
+    httpClient.begin("CHANGE THIS TO YOUR IFTTT, OR OTHER SERVICE TO PUSH A NOTIFICATION OUT");
     if ( httpClient.GET() == HTTP_CODE_OK)
     {
       String payload = httpClient.getString();
